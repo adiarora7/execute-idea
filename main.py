@@ -34,14 +34,20 @@ class TimerWidget(tk.Tk):
         self.frame3 = tk.Frame(bg="black")
         self.frame3.pack(fill=tk.X)
 
-        self.tagline_label = tk.Label(master=self.frame3, fg="#F0F8FA", bg="black",text="Till the death of your idea.", font=("Inter", 32, "bold italic"), anchor="nw")
+        self.tagline_label = tk.Label(master=self.frame3, fg="#F0F8FA", bg="black",text="till the death of your idea.", font=("Inter", 32, "bold italic"), anchor="nw")
         self.tagline_label.pack(fill=tk.BOTH, padx=(20,0), pady=(0,12))
 
         self.deadline = None  # Initialize a deadline attribute to None
         self.update_timer()  # Start the timer
 
     def open_settings(self):
-        self.settings_window = SettingsWindow(self)
+        print("open_settings called")  # Debugging print statement
+        self.settings_button.config(state=tk.DISABLED)  # Disable the settings button
+        self.settings_window = SettingsWindow(self, self.re_enable_settings_button)
+
+    def re_enable_settings_button(self):
+        print("re_enable_settings_button called")  # Debugging print statement
+        self.settings_button.config(state=tk.NORMAL)  # Re-enable the settings button
 
     def update_timer(self):
         if self.deadline:  # Only update the timer if a deadline has been set
@@ -55,17 +61,24 @@ class TimerWidget(tk.Tk):
 
 
 class SettingsWindow(tk.Toplevel):
-    def __init__(self, master):
+    def __init__(self, master, on_close_callback):
+        print("__init__ of SettingsWindow called")  # Debugging print statement
         super().__init__(master)
+        self.on_close_callback = on_close_callback
+        self.protocol("WM_DELETE_WINDOW", self.on_close)
+
+        #configure settings window
         self.title("Settings")
         self.geometry("300x200")
         
+        #Idea input - Label & Entry 
         self.idea_entry_label = tk.Label(self, text="Name of Idea", font=("arial", 16, "bold"), anchor="w")
         self.idea_entry_label.pack(fill=tk.BOTH, pady=(5,0), padx=10)
         self.idea_entry = tk.Entry(self)
         self.idea_entry.pack(fill=tk.BOTH, padx=10, pady=5)
         self.idea_entry.insert(0, master.task_label.cget("text"))  # Get current idea name
 
+        #Deadline input - Label, Example of input format & Entry
         self.time_entry_label = tk.Label(self, text="Deadline", font=("arial", 16, "bold"), anchor="w")
         self.time_entry_label.pack(fill=tk.BOTH, pady=(5,0), padx=10)
         self.time_entry_label = tk.Label(self, text="ex. 12:00 for 12 hours -  73:00 for 73 hours etc.", font=("arial", 12), anchor="w").pack(fill=tk.BOTH, padx=10)
@@ -73,13 +86,22 @@ class SettingsWindow(tk.Toplevel):
         self.time_entry.pack(fill=tk.BOTH, padx=10, pady=5)
         self.time_entry.insert(0, master.time_label.cget("text"))  # Get current time
 
+        #Confirm button ->  Updates settings and then closes settings window.
         self.confirm_button = tk.Button(self, text="Confirm", command=lambda: self.update_settings(master))
         self.confirm_button.pack(side=tk.LEFT, padx=5, pady=5)
 
-        self.cancel_button = tk.Button(self, text="Cancel", command=self.destroy)
+        #Cancel Button -> Closes settings windows
+        self.cancel_button = tk.Button(self, text="Cancel", command=self.on_close)
         self.cancel_button.pack(side=tk.RIGHT, padx=5, pady=5)
 
+    def on_close(self):
+        print("on_close called")  # Debugging print statement
+        self.on_close_callback()
+        self.destroy()
+
+    #Updates values for main window - retrieves user input values from settings window, and then sets main window values
     def update_settings(self, master):
+        print("update_settings called")  # Debugging print statement
         new_idea = self.idea_entry.get()
         new_time = self.time_entry.get()
 
@@ -87,7 +109,7 @@ class SettingsWindow(tk.Toplevel):
         hours, minutes = map(int, new_time.split(':'))
         master.deadline = datetime.now() + timedelta(hours=hours, minutes=minutes)
 
-        self.destroy()  # Close the settings window
+        self.on_close()  # Close the settings window
 
 if __name__ == "__main__":
     widget = TimerWidget()
