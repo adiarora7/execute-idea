@@ -1,6 +1,7 @@
 #!/opt/homebrew/bin/python3
 
 import tkinter as tk
+from tkinter import ttk 
 from datetime import datetime, timedelta
 
 class TimerWidget(tk.Tk):
@@ -20,7 +21,7 @@ class TimerWidget(tk.Tk):
         self.task_label = tk.Label(master=self.frame1, fg="#F0F8FA", bg="black", text="Name of Idea", font=("Inter", 38, "bold italic"), anchor="w")
         self.task_label.pack(side=tk.LEFT, fill=tk.BOTH, padx=(20,0), pady=(10,0))
 
-        self.settings_button = tk.Button(master=self.frame1, text="+" ,bg="black", bd=0, highlightthickness=0, relief=tk.FLAT, highlightbackground="black", command=self.open_settings)
+        self.settings_button = tk.Button(master=self.frame1, text="+" ,bg="blue", bd=0, highlightthickness=0, relief=tk.FLAT, highlightbackground="black", command=self.open_settings)
         self.settings_button.pack(side=tk.RIGHT,padx=(0,20))
 
         # Frame2 - time countdown
